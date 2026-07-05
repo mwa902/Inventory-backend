@@ -37,8 +37,6 @@ mongoose
     process.exit(1); // exit if DB is unreachable so we know immediately
   });
 
-// routes
-// app.use("/api/history", historyRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/role", roleRoutes);
@@ -55,10 +53,11 @@ app.use((req, res) => {
     .json({ error: `Route not found: ${req.method} ${req.originalUrl}` });
 });
 
-// global error handler
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
-  res.status(500).json({ error: "Internal server error" });
+  res
+    .status(500)
+    .json({ error: "Internal server error", message: message.error });
 });
 
 app.listen(port, () => {
