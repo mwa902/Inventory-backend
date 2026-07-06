@@ -5,7 +5,12 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/user.js";
 import roleRoutes from "./routes/role.js";
+import categoryRoutes from "./routes/category.js";
+import supplierRoutes from "./routes/supplier.js";
+import productRoutes from "./routes/product.js";
+
 dotenv.config();
+
 const app = express();
 const port = process.env.PORT || 5000;
 const mongoUri = process.env.MONGODB_URI;
@@ -37,6 +42,9 @@ mongoose
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/role", roleRoutes);
+app.use("/api/category", categoryRoutes);
+app.use("/api/supplier", supplierRoutes);
+app.use("/api/product", productRoutes);
 
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "Inventory Backend is running" });

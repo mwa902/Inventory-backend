@@ -6,15 +6,17 @@ const getAllCategory = async (req, res) => {
     res.status(200).json(category);
   } catch (error) {
     console.error("Error fetching Category:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: error.message });
   }
 };
 
 const getCategoryById = async (req, res) => {
   try {
     const categoryId = req.params.id;
-    const Category = await Category.findById(categoryId);
-    if (!Category) {
+    const category = await Category.findById(categoryId);
+    if (!category) {
       return res
         .status(404)
         .json({ error: "Category not found", message: error.message });
@@ -22,7 +24,7 @@ const getCategoryById = async (req, res) => {
 
     res.status(200).json({
       message: "Category Successful found",
-      Category,
+      category,
     });
   } catch (error) {
     console.error("Error fetching Category by ID:", error);
@@ -46,9 +48,13 @@ const createCategory = async (req, res) => {
 const updateCategory = async (req, res) => {
   try {
     const categoryId = req.params.id;
-    const updatedCategory = await User.findByIdAndUpdate(categoryId, req.body, {
-      new: true,
-    });
+    const updatedCategory = await Category.findByIdAndUpdate(
+      categoryId,
+      req.body,
+      {
+        new: true,
+      },
+    );
     if (!updatedCategory) {
       return res.status(404).json({ error: "Category not found" });
     }
@@ -64,7 +70,7 @@ const updateCategory = async (req, res) => {
 const deleteCategorybyId = async (req, res) => {
   try {
     const categoryId = req.params.id;
-    const deletedCategory = await User.findByIdAndDelete(categoryId);
+    const deletedCategory = await Category.findByIdAndDelete(categoryId);
     if (!deletedCategory) {
       return res
         .status(404)
@@ -84,5 +90,5 @@ export {
   getCategoryById,
   createCategory,
   updateCategory,
-  deleteCategorysbyId,
+  deleteCategorybyId,
 };

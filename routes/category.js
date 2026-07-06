@@ -1,11 +1,12 @@
 import express from "express";
+import mongoose from "mongoose";
 import {
   getAllCategory,
   getCategoryById,
   createCategory,
   updateCategory,
   deleteCategorybyId,
-} from "../controllers/user.js";
+} from "../controllers/category.js";
 
 const router = express.Router();
 
