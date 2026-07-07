@@ -11,6 +11,7 @@ import roleRoutes from "./routes/role.js";
 import categoryRoutes from "./routes/category.js";
 import supplierRoutes from "./routes/supplier.js";
 import productRoutes from "./routes/product.js";
+import orderRoutes from "./routes/order.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -46,6 +47,7 @@ app.use("/api/role", roleRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/supplier", supplierRoutes);
 app.use("/api/product", productRoutes);
+app.use("/api/order", orderRoutes);
 
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "Inventory Backend is running" });

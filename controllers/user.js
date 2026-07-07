@@ -16,15 +16,10 @@ const getUserById = async (req, res) => {
     const userId = req.params.id;
     const user = await User.findById(userId);
     if (!user) {
-      return res
-        .status(404)
-        .json({ error: "User not found", message: error.message });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    res.status(200).json({
-      message: "Login Successful",
-      user,
-    });
+    res.status(200).json({ message: "User fetched successfully", user });
   } catch (error) {
     console.error("Error fetching user by ID:", error);
     res
@@ -32,7 +27,6 @@ const getUserById = async (req, res) => {
       .json({ error: "Internal server error", message: error.message });
   }
 };
-
 
 const createUser = async (req, res) => {
   try {
@@ -46,7 +40,9 @@ const createUser = async (req, res) => {
     res.status(201).json(savedUser);
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: error.message });
   }
 };
 
@@ -73,9 +69,7 @@ const deleteUsersbyId = async (req, res) => {
     const userId = req.params.id;
     const deletedUser = await User.findByIdAndDelete(userId);
     if (!deletedUser) {
-      return res
-        .status(404)
-        .json({ error: "User not found", message: error.message });
+      return res.status(404).json({ error: "User not found" });
     }
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
