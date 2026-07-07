@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import bcrypt from "bcryptjs";
 
 const getAllUsers = async (req, res) => {
   try {
@@ -32,9 +33,15 @@ const getUserById = async (req, res) => {
   }
 };
 
+
 const createUser = async (req, res) => {
   try {
-    const newUser = new User(req.body);
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    const newUser = new User({
+      ...req.body,
+      password: hashedPassword,
+    });
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
   } catch (error) {

@@ -1,7 +1,6 @@
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { verifyToken } from "../middleware/verifyToken.js";
 
 const jwtSecret = process.env.JWT_SECRET || "inventory_secret_key";
 
@@ -29,10 +28,20 @@ const login = async (req, res) => {
       { expiresIn: "1d" },
     );
 
+    const decodedToken = jwt.verify(token, jwtSecret);
+    console.log("Decoded Token:", decodedToken);
+
+    const userData = user.toObject ? user.toObject() : user;
+
     return res.status(200).json({
       message: "login successful",
       token,
-      userData: user,
+      decodedToken,
+      userData: {
+        ...userData,
+        token,
+        decodedToken,
+      },
     });
   } catch (error) {
     res
@@ -71,4 +80,4 @@ const register = async (req, res) => {
   }
 };
 
-export { login, register, verifyToken };
+export { login, register };

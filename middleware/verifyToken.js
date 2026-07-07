@@ -1,25 +1,26 @@
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
-const verifyToken = async (req, res, next) => {
+dotenv.config();
+
+console.log("JWT SECRET:", process.env.JWT_SECRET);
+
+const verifyToken = (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization || req.headers.Authorization;
+    const token = req.headers.authorization.split(" ")[1];
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res
-        .status(401)
-        .json({ message: "Access denied. No token provided." });
-    }
-
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "inventory_secret_key",
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.user = decoded;
+
     next();
   } catch (error) {
-    return res.status(403).json({ message: "Invalid or expired token." });
+    console.log("Error in verifying token:", error.message);
+
+    res.status(401).json({
+      message: "Invalid token",
+      error: error.message,
+    });
   }
 };
 
