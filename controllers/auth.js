@@ -1,8 +1,10 @@
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
-const jwtSecret = process.env.JWT_SECRET || "inventory_secret_key";
+dotenv.config();
+const jwtSecret = process.env.JWT_SECRET;
 
 const login = async (req, res) => {
   try {
@@ -18,30 +20,19 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-      },
-      jwtSecret,
-      { expiresIn: "1d" },
-    );
+    console.log(jwtSecret);
 
-    const decodedToken = jwt.verify(token, jwtSecret);
-    console.log("Decoded Token:", decodedToken);
+    const token = jwt.sign({ user }, jwtSecret, { expiresIn: "1d" });
 
-    const userData = user.toObject ? user.toObject() : user;
+    // const decodedToken = jwt.verify(token, jwtSecret);
+    // console.log("Decoded Token:", decodedToken);
+
+    // const userData = user.toObject ? user.toObject() : user;
 
     return res.status(200).json({
       message: "login successful",
       token,
-      decodedToken,
-      userData: {
-        ...userData,
-        token,
-        decodedToken,
-      },
+      userData: user,
     });
   } catch (error) {
     res

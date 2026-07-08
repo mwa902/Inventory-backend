@@ -85,8 +85,8 @@ const deleteProductbyId = async (req, res) => {
 
 const addStock = async (req, res) => {
   try {
-    const { quantity } = req.body;
-    const product = await Product.findById(req.params.id);
+    const { quantity, product_id } = req.body;
+    const product = await Product.findById(product_id);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -100,8 +100,8 @@ const addStock = async (req, res) => {
 
 const removeStock = async (req, res) => {
   try {
-    const { quantity } = req.body;
-    const product = await Product.findById(req.params.id);
+    const { quantity, product_id } = req.body;
+    const product = await Product.findById(product_id);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }

@@ -7,27 +7,17 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-
-    products: [
-      {
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-          required: true,
-        },
-        quantity: { type: Number, required: true },
-        price: { type: Number, required: true },
-      },
-    ],
-
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    quantity: { type: Number, required: true },
     subtotal: Number,
-    tax: Number,
-    discount: Number,
-    totalAmount: Number,
 
     orderStatus: {
       type: String,
-      enum: ["Pending", "Confirmed", "Delivered", "Cancelled"],
+      enum: ["Pending", "Confirmed", "Cancelled"],
       default: "Pending",
     },
   },
@@ -36,4 +26,4 @@ const orderSchema = new mongoose.Schema(
   },
 );
 
-export default mongoose.model("Order",orderSchema);
+export default mongoose.model("Order", orderSchema);
