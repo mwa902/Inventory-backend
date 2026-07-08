@@ -23,6 +23,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:3000",
       "http://localhost:4173",
+      "http://localhost:5000",
     ],
     methods: ["GET", "POST", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],

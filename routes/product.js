@@ -9,15 +9,16 @@ import {
   addStock,
   removeStock,
 } from "../controllers/product.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-router.get("/", getAllProducts);
-router.get("/:id", getProductById);
-router.post("/", createProduct);
-router.put("/:id", updateProduct);
-router.delete("/:id", deleteProductbyId);
-router.put("/:id", addStock);
-router.put("./:id", removeStock);
+router.get("/", verifyToken, getAllProducts);
+router.get("/:id", verifyToken, getProductById);
+router.post("/", verifyToken, createProduct);
+router.put("/:id", verifyToken, updateProduct);
+router.delete("/:id", verifyToken, deleteProductbyId);
+router.put("/:id", verifyToken, addStock);
+router.put("./:id", verifyToken, removeStock);
 
 export default router;

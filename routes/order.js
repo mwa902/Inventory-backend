@@ -4,16 +4,13 @@ import {
   getAllOrders,
   getOrderById,
   createOrder,
-  updateOrder,
-  deleteOrderbyId,
 } from "../controllers/order.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-router.get("/", getAllOrders);
-router.get("/:id", getOrderById);
-router.post("/", createOrder);
-router.put("/:id", updateOrder);
-router.delete("/:id", deleteOrderbyId);
+router.get("/", verifyToken, getAllOrders);
+router.get("/:id", verifyToken, getOrderById);
+router.post("/", verifyToken, createOrder);
 
 export default router;

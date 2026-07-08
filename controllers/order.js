@@ -15,7 +15,7 @@ const getAllOrders = async (req, res) => {
 const getOrderById = async (req, res) => {
   try {
     const orderId = req.params.id;
-    const order = await User.findById(orderId);
+    const order = await Order.findById(orderId);
     if (!order) {
       return res
         .status(404)
@@ -47,46 +47,16 @@ const createOrder = async (req, res) => {
   }
 };
 
-const updateOrder = async (req, res) => {
-  try {
-    const orderId = req.params.id;
-    const updatedOrder = await User.findByIdAndUpdate(orderId, req.body, {
-      new: true,
-    });
-    if (!updateOrder) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-    res.status(200).json(updatedOrder);
-  } catch (error) {
-    console.error("Error updating Order:", error);
-    res
-      .status(500)
-      .json({ error: "Internal server error", message: error.message });
-  }
-};
+// const confirmOrder = async (req,res)=>{
+//   try{
+//     const order_id = req.body.order_id;
+//     const orderstatus = await Order.findOneAndUpdate()
+//     if(orderstatus == "Confirmed"){
+//       resizeBy.status(200).json({message: "Order Confirmed Successfully"});
 
-const deleteOrderbyId = async (req, res) => {
-  try {
-    const orderId = req.params.id;
-    const deletedOrder = await Order.findByIdAndDelete(orderId);
-    if (!deletedOrder) {
-      return res
-        .status(404)
-        .json({ error: "Order not found", message: error.message });
-    }
-    res.status(200).json({ message: "Order deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting Order:", error);
-    res
-      .status(500)
-      .json({ error: "Internal server error", message: error.message });
-  }
-};
+//     }
 
-export {
-  getAllOrders,
-  getOrderById,
-  createOrder,
-  updateOrder,
-  deleteOrderbyId,
-};
+//   }
+
+//  }
+export { getAllOrders, getOrderById, createOrder };

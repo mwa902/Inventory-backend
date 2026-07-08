@@ -5,13 +5,14 @@ import { getRolesbyId } from "../controllers/role.js";
 import { createRoles } from "../controllers/role.js";
 import { updateRoles } from "../controllers/role.js";
 import { deleteRolesbyId } from "../controllers/role.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-router.get("/", getAllRoles);
-router.get("/:id", getRolesbyId);
-router.post("/", createRoles);
-router.put("/:id", updateRoles);
-router.delete("/:id", deleteRolesbyId);
+router.get("/", verifyToken, getAllRoles);
+router.get("/:id", verifyToken, getRolesbyId);
+router.post("/", verifyToken, createRoles);
+router.put("/:id", verifyToken, updateRoles);
+router.delete("/:id", verifyToken, deleteRolesbyId);
 
 export default router;
