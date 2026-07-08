@@ -1,5 +1,5 @@
 import express from "express";
-import mongoose from "mongoose";
+
 import { getAllRoles } from "../controllers/role.js";
 import { getRolesbyId } from "../controllers/role.js";
 import { createRoles } from "../controllers/role.js";
