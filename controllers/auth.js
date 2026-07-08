@@ -1,5 +1,39 @@
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+const createAuthToken = async(user) => {
+  console.log(process.env.JWT_SECRET);
+  console.log(process.env.JWT_EXPIRES_IN);
+  return await jwt.sign(
+    {user}, 
+    process.env.JWT_SECRET, 
+    // {
+    //   expiresIn: process.env.JWT_EXPIRES_IN
+    // }
+  );
+}
+
+const decodeAuthToken = async(token) => {
+  const isVerified = await jwt.verify(token, process.env.JWT_SECRET);
+  if (!isVerified) {
+    return new Error("Invalid token");
+  }
+  return await jwt.decode(token, process.env.JWT_SECRET);
+}
+
+const decodeToken = async(req, res) => {
+  try {
+  const data = req.body;
+  const token = data.token;
+    const decoded = await decodeAuthToken(token);
+    return res.status(200).json({ message: "Token decoded", decoded: decoded });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: error.message });
+  }
+}
 
 const login = async (req, res) => {
   try {
@@ -15,9 +49,10 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
+    const token = await createAuthToken(user);
     return res
       .status(200)
-      .json({ message: "login successfull", userData: user });
+      .json({ message: "login successfull", userData: user, token: token });
   } catch (error) {
     res
       .status(500)
@@ -52,4 +87,4 @@ const register = async (req, res) => {
   }
 };
 
-export { login, register };
+export { login, register , decodeToken};

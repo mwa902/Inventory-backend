@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import bcrypt from "bcryptjs";
 
 const getAllUsers = async (req, res) => {
   try {
@@ -29,9 +30,23 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const newUser = new User(req.body);
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
+    const data = req.body;
+    console.log("Register data:", data);
+    const existingUser = await User.findOne({ email: data.email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const user = new User({
+      name: data.name,
+      email: data.email,
+      password: hashedPassword,
+      role: data.role,
+    });
+    await user.save();
+    return res
+      .status(201)
+      .json({ message: "User registered successfully", userData: user });
   } catch (error) {
     console.error("Error creating user:", error);
     res.status(500).json({ error: "Internal server error" });
