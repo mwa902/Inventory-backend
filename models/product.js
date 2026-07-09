@@ -18,6 +18,7 @@ const productSchema = new mongoose.Schema(
       ref: "Supplier",
       required: true,
     },
+    status: { type: String, required: true },
   },
   { timestamps: true },
 );

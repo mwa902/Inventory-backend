@@ -15,7 +15,7 @@ const getAllProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const productId = req.params.id;
-    const product = await User.findById(productId);
+    const product = await Product.findById(productId);
     if (!product) {
       return res
         .status(404)
@@ -50,7 +50,7 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
-    const updatedProduct = await User.findByIdAndUpdate(productId, req.body, {
+    const updatedProduct = await Product.findByIdAndUpdate(productId, req.body, {
       new: true,
     });
     if (!updatedProduct) {
@@ -58,7 +58,7 @@ const updateProduct = async (req, res) => {
     }
     res.status(200).json(updatedProduct);
   } catch (error) {
-    console.error("Error updating user:", error);
+    console.error("Error updating product:", error);
     res
       .status(500)
       .json({ error: "Internal server error", message: error.message });
@@ -68,7 +68,7 @@ const updateProduct = async (req, res) => {
 const deleteProductbyId = async (req, res) => {
   try {
     const productId = req.params.id;
-    const deletedProduct = await User.findByIdAndDelete(productId);
+    const deletedProduct = await Product.findByIdAndDelete(productId);
     if (!deletedProduct) {
       return res
         .status(404)
