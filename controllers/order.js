@@ -69,10 +69,10 @@ const confirmOrder = async (req, res) => {
     }
 
     if (status === "Confirmed") {
-      order.status = "Confirmed";
+      order.orderStatus = "Confirmed";
       await order.save();
 
-      const product = await Product.findById(order.product);
+      const product = await Product.findById(order.product_id);
 
       if (!product) {
         return res.status(404).json({
@@ -94,7 +94,7 @@ const confirmOrder = async (req, res) => {
     }
 
     if (status === "Cancelled") {
-      order.status = "Cancelled";
+      order.orderStatus = "Cancelled";
       await order.save();
 
       return res

@@ -2,7 +2,7 @@ import Product from "../models/product.js";
 
 const getAllProducts = async (req, res) => {
   try {
-    const product = await Product.find();
+    const product = await Product.find().populate('category').populate('supplier');
     res.status(200).json(product);
   } catch (error) {
     console.error("Error fetching Product:", error);
@@ -15,7 +15,7 @@ const getAllProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const productId = req.params.id;
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId).populate('category').populate('supplier');
     if (!product) {
       return res
         .status(404)
