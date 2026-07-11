@@ -7,7 +7,7 @@ const supplierSchema = new mongoose.Schema(
     phone_number: { type: String, required: true },
     status: { type: String, default: "Inactive" },
   },
-  { timestamp: true },
+  { timestamps: true },
 );
 
 export default mongoose.model("Supplier", supplierSchema);

@@ -11,8 +11,8 @@ import { verifyToken } from "../middleware/verifyToken.js";
 const router = express.Router();
 
 router.get("/", verifyToken, getAllReceipt);
+router.get("/report", verifyToken, generateReport);
 router.get("/:id", verifyToken, getReceiptById);
 router.post("/", verifyToken, createReceipt);
-router.get("/", verifyToken, generateReport);
 
 export default router;

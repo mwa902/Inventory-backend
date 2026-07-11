@@ -2,7 +2,10 @@ import Receipt from "../models/receipt.js";
 
 const getAllReceipt = async (req, res) => {
   try {
-    const receipt = await Receipt.find().populate("user").populate("product");
+    const receipt = await Receipt.find()
+      .populate("User")
+      .populate("ProductDetail");
+
     res.status(200).json(receipt);
   } catch (error) {
     console.error("Error fetching Receipt:", error);
@@ -16,8 +19,8 @@ const getReceiptById = async (req, res) => {
   try {
     const receiptId = req.params.id;
     const receipt = await Receipt.findById(receiptId)
-      .populate("user")
-      .populate("product");
+      .populate("User")
+      .populate("ProductDetail");
     if (!receipt) {
       return res
         .status(404)
@@ -26,7 +29,7 @@ const getReceiptById = async (req, res) => {
 
     res.status(200).json({
       message: "Receipt Successful Founded",
-      product,
+      receipt,
     });
   } catch (error) {
     console.error("Error fetching Receipt by ID:", error);
@@ -76,7 +79,7 @@ const generateReport = async (req, res) => {
     let totalSales = 0;
 
     receipts.forEach((receipt) => {
-      totalSales += receipt.totalAmount;
+      totalSales += Number(receipt.total) || 0;
     });
 
     res.status(200).json({
