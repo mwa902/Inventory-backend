@@ -18,7 +18,7 @@ router.get("/:id", verifyToken, getProductById);
 router.post("/", verifyToken, createProduct);
 router.put("/:id", verifyToken, updateProduct);
 router.delete("/:id", verifyToken, deleteProductbyId);
-router.put("/:id", verifyToken, addStock);
-router.put("./:id", verifyToken, removeStock);
+router.put("/stock/add", verifyToken, addStock);
+router.put("/stock/remove", verifyToken, removeStock);
 
 export default router;

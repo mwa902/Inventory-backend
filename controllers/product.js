@@ -90,7 +90,7 @@ const addStock = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-    product.stock += Number(quantity);
+    product.Stock += Number(quantity);
     await product.save();
     res.status(200).json({ message: "Stock added successfully", product });
   } catch (error) {
@@ -117,7 +117,12 @@ const removeStock = async (req, res) => {
         .status(400)
         .json({ message: "Sorry, not enough stock available" });
     }
-    product.stock -= Number(quantity);
+    product.Stock -= Number(quantity);
+
+    if (product.Stock <= 0) {
+      product.status = 'Sold Out';
+    }
+
     await product.save();
     res.status(200).json({ message: "Stock removed successfully", product });
   } catch (error) {
