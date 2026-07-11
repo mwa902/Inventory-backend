@@ -1,8 +1,8 @@
 import express from "express";
-import mongoose from "mongoose";
 import {
   getAllSupplier,
   getSupplierById,
+  calculateSupplierTotal,
   createSupplier,
   updateSupplier,
   deleteSupplierbyId,
@@ -13,6 +13,7 @@ const router = express.Router();
 
 router.get("/", verifyToken, getAllSupplier);
 router.get("/:id", verifyToken, getSupplierById);
+router.post("/calculate-total", verifyToken, calculateSupplierTotal);
 router.post("/", verifyToken, createSupplier);
 router.put("/:id", verifyToken, updateSupplier);
 router.delete("/:id", verifyToken, deleteSupplierbyId);

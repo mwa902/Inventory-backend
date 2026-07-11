@@ -1,4 +1,5 @@
 import Supplier from "../models/supplier.js";
+import Product from "../models/product.js";
 
 const getAllSupplier = async (req, res) => {
   try {
@@ -17,9 +18,7 @@ const getSupplierById = async (req, res) => {
     const supplierId = req.params.id;
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
-      return res
-        .status(404)
-        .json({ error: "Supplier not found", message: error.message });
+      return res.status(404).json({ error: "Supplier not found" });
     }
 
     res.status(200).json({
@@ -28,6 +27,47 @@ const getSupplierById = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching Supplier by ID:", error);
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: error.message });
+  }
+};
+
+const calculateSupplierTotal = async (req, res) => {
+  try {
+    const { productId, quantity } = req.body;
+
+    if (!productId) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
+
+    const safeQuantity = Number(quantity);
+    if (Number.isNaN(safeQuantity) || safeQuantity <= 0) {
+      return res
+        .status(400)
+        .json({ message: "Quantity must be greater than 0" });
+    }
+
+    const product = await Product.findById(productId).populate("supplier");
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const unitPrice = Number(
+      product.purchase_price ?? product.selling_price ?? 0,
+    );
+    const total = safeQuantity * unitPrice;
+
+    res.status(200).json({
+      message: "Supplier total calculated successfully",
+      supplierId: product.supplier?._id,
+      productId,
+      quantity: safeQuantity,
+      unitPrice,
+      total,
+    });
+  } catch (error) {
+    console.error("Error calculating Supplier total:", error);
     res
       .status(500)
       .json({ error: "Internal server error", message: error.message });
@@ -74,9 +114,7 @@ const deleteSupplierbyId = async (req, res) => {
     const supplierId = req.params.id;
     const deletedSupplier = await Supplier.findByIdAndDelete(supplierId);
     if (!deletedSupplier) {
-      return res
-        .status(404)
-        .json({ error: "Supplier not found", message: error.message });
+      return res.status(404).json({ error: "Supplier not found" });
     }
     res.status(200).json({ message: "Supplier deleted successfully" });
   } catch (error) {
@@ -90,6 +128,7 @@ const deleteSupplierbyId = async (req, res) => {
 export {
   getAllSupplier,
   getSupplierById,
+  calculateSupplierTotal,
   createSupplier,
   updateSupplier,
   deleteSupplierbyId,
