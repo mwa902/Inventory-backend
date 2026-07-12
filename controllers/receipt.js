@@ -49,9 +49,7 @@ const calculateReceiptTotal = async (req, res) => {
 
     const safeQuantity = Number(quantity);
     if (Number.isNaN(safeQuantity) || safeQuantity <= 0) {
-      return res
-        .status(400)
-        .json({ message: "Quantity must be greater than 0" });
+      return res.status(400).json({ message: "Quantity must be greater than 0" });
     }
 
     const product = await Product.findById(productId);
@@ -59,9 +57,7 @@ const calculateReceiptTotal = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    const unitPrice = Number(
-      product.selling_price ?? product.purchase_price ?? 0,
-    );
+    const unitPrice = Number(product.selling_price ?? product.purchase_price ?? 0);
     const total = safeQuantity * unitPrice;
 
     res.status(200).json({
@@ -81,35 +77,7 @@ const calculateReceiptTotal = async (req, res) => {
 
 const createReceipt = async (req, res) => {
   try {
-    const { ProductDetail, quantity = 1 } = req.body;
-
-    if (!ProductDetail) {
-      return res.status(400).json({ message: "ProductDetail is required" });
-    }
-
-    const product = await Product.findById(ProductDetail);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    const safeQuantity = Number(quantity);
-    if (Number.isNaN(safeQuantity) || safeQuantity <= 0) {
-      return res
-        .status(400)
-        .json({ message: "Quantity must be greater than 0" });
-    }
-
-    const unitPrice = Number(
-      product.selling_price ?? product.purchase_price ?? 0,
-    );
-    const total = safeQuantity * unitPrice;
-
-    const newReceipt = new Receipt({
-      ...req.body,
-      quantity: safeQuantity,
-      total,
-    });
-
+    const newReceipt = new Receipt(req.body);
     const savedReceipt = await newReceipt.save();
     res.status(201).json(savedReceipt);
   } catch (error) {
