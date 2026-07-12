@@ -2,7 +2,9 @@ import Product from "../models/product.js";
 
 const getAllProducts = async (req, res) => {
   try {
-    const product = await Product.find().populate('category').populate('supplier');
+    const product = await Product.find()
+      .populate("category")
+      .populate("supplier");
     res.status(200).json(product);
   } catch (error) {
     console.error("Error fetching Product:", error);
@@ -15,7 +17,9 @@ const getAllProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const productId = req.params.id;
-    const product = await Product.findById(productId).populate('category').populate('supplier');
+    const product = await Product.findById(productId)
+      .populate("category")
+      .populate("supplier");
     if (!product) {
       return res
         .status(404)
@@ -36,7 +40,12 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const newProduct = new Product(req.body);
+    const payload = {
+      ...req.body,
+      image: req.file ? `/uploads/${req.file.filename}` : req.body.image,
+    };
+
+    const newProduct = new Product(payload);
     const savedProduct = await newProduct.save();
     res.status(201).json(savedProduct);
   } catch (error) {
@@ -50,7 +59,12 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
-    const updatedProduct = await Product.findByIdAndUpdate(productId, req.body, {
+    const payload = {
+      ...req.body,
+      image: req.file ? `/uploads/${req.file.filename}` : req.body.image,
+    };
+
+    const updatedProduct = await Product.findByIdAndUpdate(productId, payload, {
       new: true,
     });
     if (!updatedProduct) {
@@ -120,7 +134,7 @@ const removeStock = async (req, res) => {
     product.Stock -= Number(quantity);
 
     if (product.Stock <= 0) {
-      product.status = 'Sold Out';
+      product.status = "Sold Out";
     }
 
     await product.save();
