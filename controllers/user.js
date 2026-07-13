@@ -49,7 +49,11 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const updatedUser = await User.findByIdAndUpdate(userId, req.body, {
+    const updateData = { ...req.body };
+    if (req.file) {
+      updateData.profilePicture = `/uploads/${req.file.filename}`;
+    }
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
     });
     if (!updatedUser) {

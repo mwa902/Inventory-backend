@@ -14,6 +14,7 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+
 const getProductById = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -47,7 +48,13 @@ const createProduct = async (req, res) => {
 
     const newProduct = new Product(payload);
     const savedProduct = await newProduct.save();
-    res.status(201).json(savedProduct);
+    
+    // Fetch the populated product so the frontend has the category and supplier objects
+    const populatedProduct = await Product.findById(savedProduct._id)
+      .populate("category")
+      .populate("supplier");
+      
+    res.status(201).json(populatedProduct);
   } catch (error) {
     console.error("Error creating Product:", error);
     res
@@ -66,7 +73,9 @@ const updateProduct = async (req, res) => {
 
     const updatedProduct = await Product.findByIdAndUpdate(productId, payload, {
       new: true,
-    });
+    })
+      .populate("category")
+      .populate("supplier");
     if (!updatedProduct) {
       return res.status(404).json({ error: "Product not found" });
     }
