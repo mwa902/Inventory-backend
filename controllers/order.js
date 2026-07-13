@@ -81,7 +81,7 @@ const confirmOrder = async (req, res) => {
         });
       }
 
-      product.stock += order.quantity;
+      product.Stock += order.quantity;
       await product.save();
 
       return res
@@ -89,7 +89,7 @@ const confirmOrder = async (req, res) => {
         .json({
           success: true,
           message: "Order confirmed successfully.",
-          currentStock: product.stock,
+          currentStock: product.Stock,
         });
     }
 
