@@ -48,12 +48,11 @@ const createProduct = async (req, res) => {
 
     const newProduct = new Product(payload);
     const savedProduct = await newProduct.save();
-    
-    // Fetch the populated product so the frontend has the category and supplier objects
+
     const populatedProduct = await Product.findById(savedProduct._id)
       .populate("category")
       .populate("supplier");
-      
+
     res.status(201).json(populatedProduct);
   } catch (error) {
     console.error("Error creating Product:", error);
