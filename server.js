@@ -14,6 +14,7 @@ import productRoutes from "./routes/product.js";
 import orderRoutes from "./routes/order.js";
 import receiptRoutes from "./routes/receipt.js";
 import path from "path";
+import dashboardstatusRoutes from "./routes/dashboardstatus.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -53,6 +54,7 @@ app.use("/api/product", productRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/receipt", receiptRoutes);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/api/dashboardstatus", dashboardstatusRoutes);
 
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "Inventory Backend is running" });
