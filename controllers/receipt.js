@@ -3,88 +3,147 @@ import Product from "../models/product.js";
 
 const getAllReceipt = async (req, res) => {
   try {
-    const receipt = await Receipt.find()
+    const receipts = await Receipt.find()
       .populate("User")
-      .populate("ProductDetail");
+      .populate("items.ProductDetail");
 
-    res.status(200).json(receipt);
+    res.status(200).json(receipts);
   } catch (error) {
     console.error("Error fetching Receipt:", error);
-    res
-      .status(500)
-      .json({ error: "Internal server error", message: error.message });
+    res.status(500).json({ error: "Internal server error", message: error.message });
   }
 };
 
 const getReceiptById = async (req, res) => {
   try {
-    const receiptId = req.params.id;
-    const receipt = await Receipt.findById(receiptId)
+    const receipt = await Receipt.findById(req.params.id)
       .populate("User")
-      .populate("ProductDetail");
+      .populate("items.ProductDetail");
 
     if (!receipt) {
       return res.status(404).json({ error: "Receipt not found" });
     }
 
-    res.status(200).json({
-      message: "Receipt Successful Founded",
-      receipt,
-    });
+    res.status(200).json({ message: "Receipt Successful Founded", receipt });
   } catch (error) {
     console.error("Error fetching Receipt by ID:", error);
-    res
-      .status(500)
-      .json({ error: "Internal server error", message: error.message });
+    res.status(500).json({ error: "Internal server error", message: error.message });
   }
 };
 
+// Calculate totals for a list of items before saving
+// Body: { items: [{ productId, quantity }] }
 const calculateReceiptTotal = async (req, res) => {
   try {
-    const { productId, quantity } = req.body;
+    const { items } = req.body;
 
-    if (!productId) {
-      return res.status(400).json({ message: "Product ID is required" });
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: "items must be a non-empty array" });
     }
 
-    const safeQuantity = Number(quantity);
-    if (Number.isNaN(safeQuantity) || safeQuantity <= 0) {
-      return res.status(400).json({ message: "Quantity must be greater than 0" });
-    }
+    let grandTotal = 0;
+    const calculated = [];
 
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    for (const item of items) {
+      const { productId, quantity } = item;
 
-    const unitPrice = Number(product.selling_price ?? product.purchase_price ?? 0);
-    const total = safeQuantity * unitPrice;
+      if (!productId) {
+        return res.status(400).json({ message: "Each item must have a productId" });
+      }
+
+      const safeQuantity = Number(quantity);
+      if (Number.isNaN(safeQuantity) || safeQuantity <= 0) {
+        return res.status(400).json({ message: "Quantity must be greater than 0" });
+      }
+
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({ message: `Product not found: ${productId}` });
+      }
+
+      const unitPrice = Number(product.selling_price ?? product.purchase_price ?? 0);
+      const subtotal = safeQuantity * unitPrice;
+      grandTotal += subtotal;
+
+      calculated.push({ productId, quantity: safeQuantity, unitPrice, subtotal });
+    }
 
     res.status(200).json({
       message: "Receipt total calculated successfully",
-      productId,
-      quantity: safeQuantity,
-      unitPrice,
-      total,
+      items: calculated,
+      total: grandTotal,
     });
   } catch (error) {
     console.error("Error calculating Receipt total:", error);
-    res
-      .status(500)
-      .json({ error: "Internal server error", message: error.message });
+    res.status(500).json({ error: "Internal server error", message: error.message });
   }
 };
 
+// Create a receipt
+// Body: { User, items: [{ ProductDetail, quantity }], paymentMethod }
+// The controller looks up each product price and calculates totals automatically
 const createReceipt = async (req, res) => {
   try {
-    const newReceipt = new Receipt(req.body);
+    const { User, items, paymentMethod } = req.body;
+
+    if (!User) {
+      return res.status(400).json({ message: "User is required" });
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: "items must be a non-empty array" });
+    }
+
+    let grandTotal = 0;
+    const resolvedItems = [];
+
+    for (const item of items) {
+      const { ProductDetail: productId, quantity } = item;
+
+      if (!productId) {
+        return res.status(400).json({ message: "Each item must have a ProductDetail (product ID)" });
+      }
+
+      const safeQuantity = Number(quantity);
+      if (Number.isNaN(safeQuantity) || safeQuantity <= 0) {
+        return res.status(400).json({ message: "Quantity must be greater than 0" });
+      }
+
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({ message: `Product not found: ${productId}` });
+      }
+
+      const unitPrice = Number(item.unitPrice ?? product.selling_price ?? product.purchase_price ?? 0);
+      const subtotal = safeQuantity * unitPrice;
+      grandTotal += subtotal;
+
+      resolvedItems.push({
+        ProductDetail: productId,
+        quantity: safeQuantity,
+        unitPrice,
+        subtotal,
+      });
+    }
+
+    const newReceipt = new Receipt({
+      User,
+      items: resolvedItems,
+      total: grandTotal,
+      paymentMethod: paymentMethod || "Cash",
+    });
+
     const savedReceipt = await newReceipt.save();
-    res.status(201).json(savedReceipt);
+
+    // Re-fetch with populated fields for the response
+    const populated = await Receipt.findById(savedReceipt._id)
+      .populate("User")
+      .populate("items.ProductDetail");
+
+    res.status(201).json(populated);
   } catch (error) {
     console.error("Error creating Receipt:", error);
-    res
-      .status(500)
-      .json({ error: "Internal server error", message: error.message });
+    res.status(500).json({ error: "Internal server error", message: error.message });
   }
 };
 
@@ -106,14 +165,10 @@ const generateReport = async (req, res) => {
     }
 
     const receipts = await Receipt.find({
-      createdAt: {
-        $gte: startDate,
-        $lte: today,
-      },
+      createdAt: { $gte: startDate, $lte: today },
     });
 
     let totalSales = 0;
-
     receipts.forEach((receipt) => {
       totalSales += Number(receipt.total) || 0;
     });
@@ -121,13 +176,11 @@ const generateReport = async (req, res) => {
     res.status(200).json({
       reportType: type,
       totalReceipts: receipts.length,
-      totalSales: totalSales,
+      totalSales,
       receipts,
     });
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 
