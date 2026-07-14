@@ -114,6 +114,7 @@ const addStock = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
     product.Stock += Number(quantity);
+    product.status = product.Stock > 0 ? "InStock" : "Sold Out";
     await product.save();
     res.status(200).json({ message: "Stock added successfully", product });
   } catch (error) {

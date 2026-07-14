@@ -81,7 +81,8 @@ const confirmOrder = async (req, res) => {
         });
       }
 
-      product.Stock += order.quantity;
+      product.Stock += Number(order.quantity);
+      product.status = product.Stock > 0 ? "InStock" : "Sold Out";
       await product.save();
 
       return res
