@@ -1,4 +1,5 @@
 import Category from "../models/category.js";
+import Product from "../models/product.js";
 
 const getAllCategory = async (req, res) => {
   try {
@@ -70,20 +71,34 @@ const updateCategory = async (req, res) => {
 const deleteCategorybyId = async (req, res) => {
   try {
     const categoryId = req.params.id;
-    const deletedCategory = await Category.findByIdAndDelete(categoryId);
-    if (!deletedCategory) {
-      return res
-        .status(404)
-        .json({ error: "Category not found", message: error.message });
+    const category = await Category.findById(categoryId);
+
+    if (!category) {
+      return res.status(404).json({
+        error: "Category not found",
+      });
     }
-    res.status(200).json({ message: "Category deleted successfully" });
+
+    const deletedProducts = await Product.deleteMany({
+      category: categoryId,
+    });
+    await Category.findByIdAndDelete(categoryId);
+
+    res.status(200).json({
+      message: "Category and related products deleted successfully",
+      deletedProducts: deletedProducts.deletedCount,
+    });
   } catch (error) {
-    console.error("Error deleting Category:", error);
-    res
-      .status(500)
-      .json({ error: "Internal server error", message: error.message });
+    console.error("Error deleting category:", error);
+
+    res.status(500).json({
+      error: "Internal server error",
+      message: error.message,
+    });
   }
 };
+
+export default deleteCategorybyId;
 
 export {
   getAllCategory,

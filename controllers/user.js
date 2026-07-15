@@ -30,19 +30,33 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
+    const existingUser = await User.findOne({ username: req.body.username });
+
+    if (existingUser) {
+      return res.status(400).json({
+        error: "Username already exists",
+      });
+    }
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     const newUser = new User({
       ...req.body,
       password: hashedPassword,
     });
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
+
+    const savedUser = await newUser.save(); 
+
+    res.status(201).json({
+      message: "User created successfully",
+      user: savedUser,
+    });
   } catch (error) {
     console.error("Error creating user:", error);
-    res
-      .status(500)
-      .json({ error: "Internal server error", message: error.message });
+
+    res.status(500).json({
+      error: "Internal server error",
+      message: error.message,
+    });
   }
 };
 
