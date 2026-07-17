@@ -30,11 +30,11 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const existingUser = await User.findOne({ username: req.body.username });
+    const existingUser = await User.findOne({ email: req.body.email });
 
     if (existingUser) {
       return res.status(400).json({
-        error: "Username already exists",
+        error: "Email already exists",
       });
     }
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -44,7 +44,7 @@ const createUser = async (req, res) => {
       password: hashedPassword,
     });
 
-    const savedUser = await newUser.save(); 
+    const savedUser = await newUser.save();
 
     res.status(201).json({
       message: "User created successfully",
@@ -66,6 +66,12 @@ const updateUser = async (req, res) => {
     const updateData = { ...req.body };
     if (req.file) {
       updateData.profilePicture = `/uploads/${req.file.filename}`;
+    }
+    if (updateData.email) {
+      const emailConflict = await User.findOne({ email: updateData.email, _id: { $ne: userId } });
+      if (emailConflict) {
+        return res.status(400).json({ error: "Email already exists" });
+      }
     }
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
